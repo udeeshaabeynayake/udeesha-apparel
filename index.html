@@ -3,155 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UDEESHA | Premium Secure Store</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap" rel="stylesheet">
+    <title>UDEESHA | Obsidian Luxe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #fdfdfd; --card-bg: #ffffff; --text: #0a0a0a; --accent: #000000; --border: rgba(0,0,0,0.08); }
-        body.dark-mode { --bg: #0a0a0a; --card-bg: #161616; --text: #f5f5f5; --accent: #ffffff; --border: rgba(255,255,255,0.1); }
-        
-        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; transition: 0.3s; }
+        :root {
+            --primary: #6c5ce7; 
+            --bg: #0f0f13; 
+            --card-bg: #1a1a20;
+            --text: #ffffff;
+            --text-dim: #a0a0b0;
+            --border: rgba(255, 255, 255, 0.1);
+            --heart-red: #ff7675;
+        }
+
+        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         body { margin: 0; background-color: var(--bg); color: var(--text); min-height: 100vh; }
 
-        /* Auth Screen */
-        .auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 5000; display: flex; justify-content: center; align-items: center; }
-        .auth-card { background: var(--card-bg); padding: 3rem; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; border: 1px solid var(--border); }
-        
-        .btn { padding: 12px 24px; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; width: 100%; margin-top: 10px; }
-        .btn-black { background: var(--accent); color: var(--bg); }
-        .google-btn { background: #fff; border: 1px solid #ddd; color: #555; display: flex; align-items: center; justify-content: center; gap: 10px; }
-
-        /* Nav & Content */
-        nav { background: var(--bg); padding: 1rem 8%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000; }
-        .nav-right { display: flex; gap: 15px; align-items: center; }
-        .user-pic { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border); }
-        
-        .container { max-width: 1200px; margin: 3rem auto; padding: 0 5%; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
-        .card { background: var(--card-bg); border-radius: 20px; overflow: hidden; border: 1px solid var(--border); }
-        .card img { width: 100%; height: 350px; object-fit: cover; }
-        .card-body { padding: 1.5rem; text-align: center; }
-
+        /* --- AUTH & NAV (Same as before) --- */
+        .auth-overlay { position: fixed; inset: 0; background: radial-gradient(circle at top right, #2d1b4e, var(--bg)); z-index: 5000; display: flex; justify-content: center; align-items: center; }
+        .auth-card { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); padding: 3rem; border-radius: 32px; border: 1px solid var(--border); width: 100%; max-width: 420px; text-align: center; }
         .hidden { display: none !important; }
-        input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+
+        nav { background: rgba(15, 15, 19, 0.8); backdrop-filter: blur(10px); padding: 1rem 8%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000; }
+        .user-pic { width: 40px; height: 40px; border-radius: 12px; border: 2px solid var(--primary); }
+
+        /* --- STORE CONTENT --- */
+        .container { max-width: 1200px; margin: 4rem auto; padding: 0 5%; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2.5rem; }
+
+        /* --- UPDATED PRO CARD LOGIC --- */
+        .card { background: var(--card-bg); border-radius: 24px; overflow: hidden; border: 1px solid var(--border); position: relative; }
+        .img-wrapper { position: relative; width: 100%; height: 380px; overflow: hidden; }
+        .card img { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* Wishlist Heart Icon */
+        .wishlist-btn {
+            position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(5px); border: none; width: 40px; height: 40px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 10; color: white; font-size: 1.2rem;
+        }
+        .wishlist-btn.active { color: var(--heart-red); transform: scale(1.2); }
+        .wishlist-btn:hover { background: rgba(0,0,0,0.6); }
+
+        .card-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: flex-end; padding: 20px; opacity: 0; }
+        .card:hover .card-overlay { opacity: 1; }
+        .card:hover img { transform: scale(1.1); }
+
+        .btn { padding: 12px; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; width: 100%; }
+        .btn-primary { background: var(--primary); color: white; }
+
+        /* Filter Toggle */
+        .filter-chip { padding: 8px 18px; border-radius: 50px; background: var(--card-bg); border: 1px solid var(--border); color: var(--text-dim); cursor: pointer; font-size: 0.8rem; font-weight: 700; }
+        .filter-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
     </style>
 </head>
 <body>
 
     <div id="auth-screen" class="auth-overlay">
         <div class="auth-card">
-            <h1 style="font-weight:800; margin-bottom: 0.5rem;">UDEESHA.</h1>
-            <p style="opacity:0.6; margin-bottom: 2rem;">Sign in to start shopping</p>
-            
+            <h1 style="color:white">UDEESHA.</h1>
+            <p style="color:var(--text-dim)">Obsidian Collection Login</p>
             <input type="email" id="email" placeholder="Email">
             <input type="password" id="password" placeholder="Password">
-            
-            <button class="btn btn-black" id="loginBtn">Sign In</button>
-            <button class="btn" style="background:none; font-size:0.8rem;" id="signupBtn">New? Create Account</button>
-            
-            <div style="margin: 20px 0; opacity:0.2;">OR</div>
-            
-            <button class="btn google-btn" id="googleBtn">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" width="18">
-                Continue with Google
-            </button>
+            <button class="btn btn-primary" id="loginBtn">Enter Store</button>
+            <button class="btn" style="background:none; color:var(--primary)" id="googleBtn">Sign in with Google</button>
         </div>
     </div>
 
     <nav class="hidden" id="main-nav">
-        <div style="font-weight:900; font-size:1.5rem;">UDEESHA.</div>
-        <div class="nav-right">
-            <span id="user-name" style="font-weight:600; font-size:0.9rem;"></span>
+        <div style="font-weight:800; font-size:1.6rem;">UDEESHA.</div>
+        <div style="display:flex; align-items:center; gap:15px;">
+            <div id="user-name" style="font-weight:700; font-size:0.9rem;"></div>
             <img id="user-img" class="user-pic" src="">
-            <button class="btn btn-black" style="padding:8px 15px; width:auto; font-size:0.8rem;" id="logoutBtn">Logout</button>
         </div>
     </nav>
 
     <div class="container hidden" id="store-content">
-        <h2 style="font-weight:800; margin-bottom: 2rem;">New Drops</h2>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+            <h2 style="font-weight:800; font-size:2rem; margin:0;">Collections</h2>
+            <div style="display:flex; gap:10px;">
+                <div class="filter-chip active" id="btn-all">ALL</div>
+                <div class="filter-chip" id="btn-wish">WISHLIST (<span id="wish-count">0</span>)</div>
+            </div>
+        </div>
         <div class="grid" id="product-grid"></div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBZqBJmhdOFaKt5E1ToEFfOvesmtu4nIl0",
-            authDomain: "udeesha-store.firebaseapp.com",
-            projectId: "udeesha-store",
-            storageBucket: "udeesha-store.firebasestorage.app",
-            messagingSenderId: "262944265513",
-            appId: "1:262944265513:web:33a81b1d710b13e1905338",
-            measurementId: "G-G6W1XWLPSG"
-        };
-
+        // CONFIG (Use your specific Firebase keys from earlier)
+        const firebaseConfig = { apiKey: "AIzaSyBZqBJmhdOFaKt5E1ToEFfOvesmtu4nIl0", authDomain: "udeesha-store.firebaseapp.com", projectId: "udeesha-store", storageBucket: "udeesha-store.firebasestorage.app", messagingSenderId: "262944265513", appId: "1:262944265513:web:33a81b1d710b13e1905338", measurementId: "G-G6W1XWLPSG" };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // UI Selectors
-        const authScreen = document.getElementById('auth-screen');
-        const mainNav = document.getElementById('main-nav');
-        const content = document.getElementById('store-content');
+        let wishlist = JSON.parse(localStorage.getItem('udeesha_wishlist')) || [];
+        let allProducts = [];
+        let filterWishlist = false;
 
-        // Authentication Handlers
-        document.getElementById('googleBtn').onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
-        
-        document.getElementById('signupBtn').onclick = () => {
-            const email = document.getElementById('email').value;
-            const pass = document.getElementById('password').value;
-            createUserWithEmailAndPassword(auth, email, pass).catch(e => alert(e.message));
-        };
-
-        document.getElementById('loginBtn').onclick = () => {
-            const email = document.getElementById('email').value;
-            const pass = document.getElementById('password').value;
-            signInWithEmailAndPassword(auth, email, pass).catch(e => alert(e.message));
-        };
-
-        document.getElementById('logoutBtn').onclick = () => signOut(auth);
-
-        // Monitor Auth State
-        onAuthStateChanged(auth, (user) => {
+        // AUTH UI HANDLING
+        onAuthStateChanged(auth, user => {
             if (user) {
-                authScreen.classList.add('hidden');
-                mainNav.classList.remove('hidden');
-                content.classList.remove('hidden');
-                document.getElementById('user-name').innerText = user.displayName || user.email.split('@')[0];
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('main-nav').classList.remove('hidden');
+                document.getElementById('store-content').classList.remove('hidden');
+                document.getElementById('user-name').innerText = user.displayName || user.email;
                 document.getElementById('user-img').src = user.photoURL || 'https://via.placeholder.com/100';
-                fetchProducts();
-            } else {
-                authScreen.classList.remove('hidden');
-                mainNav.classList.add('hidden');
-                content.classList.add('hidden');
+                loadStore();
             }
         });
 
-        // Store Logic
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQEyxhe40YVMMDXqT1rGBE2N-4k5jkmJqoeNnlT5vUASmpd9LZp12PRMu2fsHpudho5qpUg7UyuAoD2/pub?output=csv';
+        document.getElementById('loginBtn').onclick = () => signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
+        document.getElementById('googleBtn').onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
 
-        async function fetchProducts() {
-            try {
-                const res = await fetch(CSV_URL);
-                const text = await res.text();
-                const rows = text.split(/\r?\n/).slice(1);
-                const grid = document.getElementById('product-grid');
-                
-                grid.innerHTML = rows.map(row => {
-                    const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    if(cols.length < 3) return '';
-                    return `
-                        <div class="card">
-                            <img src="${cols[2].trim()}">
-                            <div class="card-body">
-                                <h3 style="margin:0">${cols[0].trim()}</h3>
-                                <p style="font-weight:800; color:#d63031; font-size:1.2rem;">$${cols[1].trim()}</p>
-                                <button class="btn btn-black" onclick="alert('Order link sent to dashboard!')">Add to Bag</button>
+        // WISHLIST LOGIC
+        window.toggleWishlist = (name) => {
+            if (wishlist.includes(name)) {
+                wishlist = wishlist.filter(item => item !== name);
+            } else {
+                wishlist.push(name);
+            }
+            localStorage.setItem('udeesha_wishlist', JSON.stringify(wishlist));
+            renderProducts();
+        };
+
+        // RENDER LOGIC
+        async function loadStore() {
+            const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQEyxhe40YVMMDXqT1rGBE2N-4k5jkmJqoeNnlT5vUASmpd9LZp12PRMu2fsHpudho5qpUg7UyuAoD2/pub?output=csv';
+            const res = await fetch(CSV_URL);
+            const text = await res.text();
+            const rows = text.split(/\r?\n/).slice(1);
+            allProducts = rows.map(r => {
+                const c = r.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                return { name: c[0].trim(), price: c[1].trim(), img: c[2].trim() };
+            }).filter(p => p.name);
+            renderProducts();
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('product-grid');
+            document.getElementById('wish-count').innerText = wishlist.length;
+            
+            const displayList = filterWishlist 
+                ? allProducts.filter(p => wishlist.includes(p.name)) 
+                : allProducts;
+
+            grid.innerHTML = displayList.map(p => {
+                const isWished = wishlist.includes(p.name);
+                return `
+                    <div class="card">
+                        <button class="wishlist-btn ${isWished ? 'active' : ''}" onclick="toggleWishlist('${p.name}')">
+                            ${isWished ? '❤' : '♡'}
+                        </button>
+                        <div class="img-wrapper">
+                            <img src="${p.img}">
+                            <div class="card-overlay">
+                                <button class="btn btn-primary">Add to Bag</button>
                             </div>
                         </div>
-                    `;
-                }).join('');
-            } catch (err) { console.error("Grid failed to load", err); }
+                        <div class="card-body">
+                            <h3 style="margin:0; font-size:1.1rem">${p.name}</h3>
+                            <p style="color:var(--text-dim); margin:5px 0">$${p.price}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
+
+        // FILTER CLICKS
+        document.getElementById('btn-all').onclick = () => {
+            filterWishlist = false;
+            document.getElementById('btn-all').classList.add('active');
+            document.getElementById('btn-wish').classList.remove('active');
+            renderProducts();
+        };
+        document.getElementById('btn-wish').onclick = () => {
+            filterWishlist = true;
+            document.getElementById('btn-wish').classList.add('active');
+            document.getElementById('btn-all').classList.remove('active');
+            renderProducts();
+        };
     </script>
 </body>
 </html>
