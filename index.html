@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BATHIK | Premium Collection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --primary: #2d3436;
+            --accent: #6c5ce7;
+            --bg: #f8f9fa;
+            --glass: rgba(255, 255, 255, 0.8);
+            --text: #2d3436;
+            --border: rgba(0,0,0,0.1);
+        }
+
+        body.dark-mode {
+            --bg: #0f0f13;
+            --glass: rgba(26, 26, 32, 0.9);
+            --text: #f5f5f5;
+            --border: rgba(255,255,255,0.1);
+            --primary: #ffffff;
+        }
+
+        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--text); overflow-x: hidden; }
+
+        /* --- THEME SWITCH --- */
+        .theme-switch {
+            position: fixed; top: 20px; right: 20px;
+            width: 50px; height: 50px; background: var(--glass);
+            border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            z-index: 2000; border: 1px solid var(--border); box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+
+        /* --- LOADING SPINNER --- */
+        #loader {
+            position: fixed; inset: 0; background: var(--bg);
+            display: flex; justify-content: center; align-items: center; z-index: 9999;
+        }
+        .spinner {
+            width: 50px; height: 50px; border: 3px solid var(--border);
+            border-top-color: var(--accent); border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* --- LOGIN CARD --- */
+        #auth-screen { height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .login-card {
+            background: var(--glass); backdrop-filter: blur(20px);
+            padding: 3rem; border-radius: 32px; border: 1px solid var(--border);
+            width: 100%; max-width: 420px; text-align: center;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        input {
+            width: 100%; padding: 14px; margin-bottom: 12px; border-radius: 12px;
+            border: 1px solid var(--border); background: rgba(0,0,0,0.02); color: var(--text); outline: none;
+        }
+
+        .btn-black {
+            background: var(--primary); color: var(--bg); border: none;
+            padding: 15px; width: 100%; border-radius: 12px; font-weight: 800; cursor: pointer;
+        }
+
+        .google-btn {
+            margin-top: 15px; background: white; color: #1a1a1a;
+            border: 1px solid #ddd; padding: 12px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; font-weight: 700;
+        }
+
+        /* --- NAV & CONTENT --- */
+        nav {
+            padding: 1.5rem 8%; display: flex; justify-content: space-between; align-items: center;
+            background: var(--glass); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; z-index: 1000;
+        }
+
+        .brand { font-size: 2rem; font-weight: 900; letter-spacing: -2px; }
+
+        .container { padding: 4rem 8%; max-width: 1400px; margin: 0 auto; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2.5rem; }
+
+        .card {
+            background: var(--glass); border-radius: 24px; padding: 15px;
+            border: 1px solid var(--border); position: relative;
+        }
+        .card:hover { transform: translateY(-10px); }
+        .card img { width: 100%; height: 400px; object-fit: cover; border-radius: 18px; }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body id="body">
+
+    <div id="loader" class="hidden"><div class="spinner"></div></div>
+
+    <div class="theme-switch" onclick="toggleTheme()">
+        <div id="theme-icon">☀️</div>
+    </div>
+
+    <div id="auth-screen">
+        <div class="login-card">
+            <h1 class="brand">BATHIK.</h1>
+            <p style="opacity: 0.6; margin-bottom: 2rem;">Sign in to your account</p>
+            <input type="email" id="email" placeholder="Email Address">
+            <input type="password" id="password" placeholder="Password">
+            <button class="btn-black" onclick="handleLogin()">Sign In</button>
+            
+            <div style="margin: 20px 0; opacity: 0.2; font-size: 0.7rem; font-weight: 800;">OR</div>
+
+            <div class="google-btn" id="googleBtn">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" width="18">
+                Google Login
+            </div>
+        </div>
+    </div>
+
+    <div id="main-store" class="hidden">
+        <nav>
+            <div class="brand">BATHIK.</div>
+            <div style="display:flex; gap: 20px; align-items:center;">
+                <span id="user-display" style="font-weight:700; font-size: 0.9rem;"></span>
+                <button class="btn-black" style="width:auto; padding:8px 18px; font-size: 0.8rem;" onclick="logout()">Logout</button>
+            </div>
+        </nav>
+
+        <div class="container">
+            <div style="margin-bottom: 3rem;">
+                <h2 style="font-size: 2.5rem; margin: 0; font-weight: 800;">The Boutique</h2>
+                <p style="opacity: 0.6;">Exclusive handcrafted designs.</p>
+            </div>
+            <div class="grid" id="product-grid"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBZqBJmhdOFaKt5E1ToEFfOvesmtu4nIl0",
+            authDomain: "udeesha-store.firebaseapp.com",
+            projectId: "udeesha-store",
+            storageBucket: "udeesha-store.firebasestorage.app",
+            messagingSenderId: "262944265513",
+            appId: "1:262944265513:web:33a81b1d710b13e1905338"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        window.toggleTheme = () => {
+            const body = document.getElementById('body');
+            body.classList.toggle('dark-mode');
+            document.getElementById('theme-icon').innerText = body.classList.contains('dark-mode') ? '🌙' : '☀️';
+        };
+
+        window.handleLogin = () => {
+            signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value).catch(e => alert(e.message));
+        };
+
+        document.getElementById('googleBtn').onclick = () => signInWithPopup(auth, provider).catch(e => alert(e.message));
+        window.logout = () => signOut(auth);
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('main-store').classList.remove('hidden');
+                document.getElementById('user-display').innerText = user.displayName || user.email;
+                fetchProducts();
+            } else {
+                document.getElementById('auth-screen').classList.remove('hidden');
+                document.getElementById('main-store').classList.add('hidden');
+            }
+        });
+
+        async function fetchProducts() {
+            const loader = document.getElementById('loader');
+            loader.classList.remove('hidden'); // Show loader
+            
+            try {
+                const res = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQEyxhe40YVMMDXqT1rGBE2N-4k5jkmJqoeNnlT5vUASmpd9LZp12PRMu2fsHpudho5qpUg7UyuAoD2/pub?output=csv');
+                const text = await res.text();
+                const rows = text.split(/\r?\n/).slice(1);
+                
+                document.getElementById('product-grid').innerHTML = rows.map(row => {
+                    const c = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    if(c.length < 3) return '';
+                    return `
+                        <div class="card">
+                            <img src="${c[2].trim()}">
+                            <div style="padding: 10px;">
+                                <h3 style="margin: 10px 0 5px 0; font-weight: 800;">${c[0].trim()}</h3>
+                                <div style="font-weight: 600; opacity: 0.7;">$${c[1].trim()}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } finally {
+                loader.classList.add('hidden'); // Hide loader
+            }
+        }
+    </script>
+</body>
+</html>
