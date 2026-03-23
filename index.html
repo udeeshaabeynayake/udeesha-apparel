@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UDEESHA | Search & Explore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --glass: rgba(255, 255, 255, 0.1);
+            --border: rgba(255, 255, 255, 0.2);
+            --accent: #ffffff;
+        }
+
+        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: url('https://images.unsplash.com/photo-1516339901600-2e3a82dfdfef?q=80&w=1920') no-repeat center center/cover fixed;
+            color: white;
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; z-index: 1000;
+        }
+
+        .search-container {
+            flex: 0 1 400px;
+            margin: 0 20px;
+            position: relative;
+        }
+
+        .search-bar {
+            width: 100%;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            padding: 10px 20px;
+            border-radius: 50px;
+            color: white;
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        .search-bar:focus {
+            background: rgba(255,255,255,0.2);
+            border-color: white;
+        }
+
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+
+        .profile-btn {
+            display: flex; align-items: center; gap: 8px;
+            background: var(--glass); padding: 6px 12px;
+            border-radius: 50px; border: 1px solid var(--border);
+            cursor: pointer;
+        }
+
+        .profile-btn img { width: 28px; height: 28px; border-radius: 50%; }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border);
+            color: white; padding: 8px 16px;
+            border-radius: 50px; cursor: pointer;
+            font-size: 0.75rem; font-weight: 800;
+        }
+
+        .logout-btn:hover { background: #ff4757; border-color: #ff4757; }
+
+        /* --- PRODUCT GRID --- */
+        .container { padding: 4rem 5%; max-width: 1300px; margin: 0 auto; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2.5rem; }
+        
+        .card { 
+            background: var(--glass); 
+            border-radius: 30px; 
+            padding: 20px; 
+            border: 1px solid var(--border);
+            text-align: left;
+        }
+        
+        .card:hover { transform: translateY(-10px); background: rgba(255,255,255,0.15); }
+        .card img { width: 100%; height: 320px; object-fit: cover; border-radius: 20px; margin-bottom: 15px; }
+
+        .hidden { display: none !important; }
+        
+        /* Animation */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .fade-in { animation: fadeIn 0.5s ease; }
+    </style>
+</head>
+<body>
+
+    <nav id="main-nav" class="hidden">
+        <div style="font-weight: 900; font-size: 1.4rem; letter-spacing: -1px;">UDEESHA.</div>
+        
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-bar" placeholder="Search collection...">
+        </div>
+
+        <div class="nav-right">
+            <div class="profile-btn" id="profileBtn">
+                <img id="user-img" src="">
+                <span id="user-name" style="font-size: 0.85rem; font-weight: 600;"></span>
+            </div>
+            <button class="logout-btn" id="logoutBtn">LOGOUT</button>
+        </div>
+    </nav>
+
+    <div id="store-content" class="container hidden">
+        <h2 id="resultText" style="margin-bottom: 2.5rem; font-weight: 800; font-size: 2.2rem;">Featured Drops</h2>
+        <div id="product-grid" class="grid fade-in"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBZqBJmhdOFaKt5E1ToEFfOvesmtu4nIl0",
+            authDomain: "udeesha-store.firebaseapp.com",
+            projectId: "udeesha-store",
+            storageBucket: "udeesha-store.firebasestorage.app",
+            messagingSenderId: "262944265513",
+            appId: "1:262944265513:web:33a81b1d710b13e1905338",
+            measurementId: "G-G6W1XWLPSG"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        let allProducts = [];
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('main-nav').classList.remove('hidden');
+                document.getElementById('store-content').classList.remove('hidden');
+                document.getElementById('user-name').innerText = user.displayName || user.email.split('@')[0];
+                document.getElementById('user-img').src = user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`;
+                fetchProducts();
+            } else {
+                // If logged out, redirect or show login (Assumes you have the login code in same file)
+                window.location.reload(); 
+            }
+        });
+
+        document.getElementById('logoutBtn').onclick = () => signOut(auth);
+
+        // SEARCH LOGIC
+        document.getElementById('searchInput').oninput = (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = allProducts.filter(p => 
+                p.name.toLowerCase().includes(term)
+            );
+            
+            document.getElementById('resultText').innerText = term ? `Results for "${term}"` : "Featured Drops";
+            renderGrid(filtered);
+        };
+
+        async function fetchProducts() {
+            const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQEyxhe40YVMMDXqT1rGBE2N-4k5jkmJqoeNnlT5vUASmpd9LZp12PRMu2fsHpudho5qpUg7UyuAoD2/pub?output=csv';
+            const res = await fetch(CSV_URL);
+            const text = await res.text();
+            const rows = text.split(/\r?\n/).slice(1);
+            
+            allProducts = rows.map(row => {
+                const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                return { name: cols[0], price: cols[1], img: cols[2] };
+            }).filter(p => p.name);
+
+            renderGrid(allProducts);
+        }
+
+        function renderGrid(list) {
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = list.length > 0 ? list.map(p => `
+                <div class="card fade-in">
+                    <img src="${p.img.trim()}">
+                    <h3 style="margin: 0;">${p.name.trim()}</h3>
+                    <p style="font-weight: 800; opacity: 0.6; margin-top: 5px;">$${p.price.trim()}</p>
+                </div>
+            `).join('') : '<p style="grid-column: 1/-1; text-align: center; padding: 3rem; opacity: 0.5;">No items found matches your search.</p>';
+        }
+    </script>
+</body>
+</html>
